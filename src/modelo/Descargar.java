@@ -30,8 +30,6 @@ public class Descargar {
 			connection = DriverManager.getConnection(url, user, password);
 
 			connection.setAutoCommit(false);
-			
-			System.out.println("\nConexion Realizada");
 
 		} catch (ClassNotFoundException | SQLException | IOException e) {
 			e.printStackTrace();
@@ -58,16 +56,18 @@ public class Descargar {
 		}
 	}
 	
-	public List<Comunidad> selectComunidad(Connection connection) throws ClassNotFoundException, SQLException, IOException {
+	public List<Comunidad> selectComunidad() throws ClassNotFoundException, SQLException, IOException {
 
 		List<Comunidad> listaComunidad = new ArrayList<Comunidad>();
 		
 		String consultaSQL = "SELECT * FROM PORCENTAJES_RANGOEDAD";
 		
+		Connection connection = null;
 		Statement statement = null;
 		ResultSet resultSet = null;
 
 		try {
+			connection = createConnection();
 			statement = connection.createStatement();
 			resultSet = statement.executeQuery(consultaSQL);
 			
@@ -111,16 +111,19 @@ public class Descargar {
 		return listaComunidad;
 	}
 	
-	public List<Porcentaje> selectPorcentajes(Connection connection) throws ClassNotFoundException, SQLException, IOException {
+	public List<Porcentaje> selectPorcentajes() throws ClassNotFoundException, SQLException, IOException {
 
 		List<Porcentaje> listaPorcentajes = new ArrayList<Porcentaje>();
 		
 		String consultaSQL = "SELECT * FROM PORCENTAJE_VOTACION_RANGO";
 		
+		Connection connection = null;
+		
 		Statement statement = null;
 		ResultSet resultSet = null;
 
 		try {
+			connection = createConnection();
 			statement = connection.createStatement();
 			resultSet = statement.executeQuery(consultaSQL);
 			
@@ -159,13 +162,66 @@ public class Descargar {
 		return listaPorcentajes;
 	}
 	
+	public List<Cantante> selectCantante() throws ClassNotFoundException, SQLException, IOException {
+
+		List<Cantante> listaCantante = new ArrayList<Cantante>();
+		
+		String consultaSQL = "SELECT * FROM CANTANTES";
+		
+		Connection connection = null;
+		
+		Statement statement = null;
+		ResultSet resultSet = null;
+
+		try {
+			connection = createConnection();
+			statement = connection.createStatement();
+			resultSet = statement.executeQuery(consultaSQL);
+			
+			Cantante cantante;
+			
+			while (resultSet.next()) {
+				cantante = new Cantante();
+				cantante.setNombre(resultSet.getString("NOMBRE"));
+				cantante.setApellidos(resultSet.getString("APELLIDOS"));
+				cantante.setCancion(resultSet.getString("NOMBRE_CANCION"));
+				
+				listaCantante.add(cantante);
+			}
+		} catch (SQLException e) {
+			e.printStackTrace();
+			throw e;
+		} finally {
+			// Cerramos todos los resources
+			if (null != resultSet) {
+				try {
+					resultSet.close();
+				} catch (SQLException e) {
+					e.printStackTrace();
+				}
+			}
+			if (null != statement) {
+				try {
+					statement.close();
+				} catch (SQLException e) {
+					e.printStackTrace();
+				}
+			}
+			
+		}
+		return listaCantante;
+	}
+	
 	public static void main(String[]args) throws ClassNotFoundException, SQLException, IOException {
 		Descargar helper = new Descargar();
 		Connection connection = helper.createConnection(); 
 		
-		List<Comunidad> listaComunidad = helper.selectComunidad(connection);
+
+		List<Comunidad> listaComunidad = helper.selectComunidad();
 		
-		List<Porcentaje> listaPorcentaje = helper.selectPorcentajes(connection);
+		List<Porcentaje> listaPorcentaje = helper.selectPorcentajes();
+		
+		List<Cantante> listaCantante = helper.selectCantante();
 		
 		
 	}
